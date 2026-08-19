@@ -35,6 +35,7 @@ $active = $active ?? '';
             <a href="items.php" class="<?= $active === 'items' ? 'active' : '' ?>">Rate Items</a>
 
             <div class="group-label">Content</div>
+            <a href="announcements.php" class="<?= $active === 'announcements' ? 'active' : '' ?>">Announcements &amp; Gallery</a>
             <a href="pages.php" class="<?= $active === 'pages' ? 'active' : '' ?>">Site Pages</a>
             <a href="enquiries.php" class="<?= $active === 'enquiries' ? 'active' : '' ?>">Enquiries</a>
 

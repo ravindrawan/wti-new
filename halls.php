@@ -21,7 +21,9 @@ include __DIR__ . '/includes/header.php';
         <div class="grid grid-3">
             <?php foreach ($halls as $h): ?>
             <div class="card hall-card">
-                <div class="hall-photo"><?= e(mb_substr($h['name_en'], 0, 1)) ?></div>
+                <div class="hall-photo" <?= $h['photo'] ? 'style="background-image:url(\'' . e(upload_url('halls', $h['photo'])) . '\'); background-size:cover; background-position:center;"' : '' ?>>
+                    <?= $h['photo'] ? '' : e(mb_substr($h['name_en'], 0, 1)) ?>
+                </div>
                 <span class="tag"><?= $h['has_ac'] ? 'A/C available' : 'Non A/C only' ?></span>
                 <h3 style="margin-bottom:2px;"><?= e($h['name_en']) ?></h3>
                 <div class="si" style="color:var(--ink-soft); font-size:.85rem; margin-bottom:8px;"><?= e($h['name_si']) ?></div>

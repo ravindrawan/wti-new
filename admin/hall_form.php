@@ -13,6 +13,8 @@ if ($id) {
 }
 $page_title = $id ? 'Edit Hall' : 'Add Hall';
 
+$uploadError = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
     $data = [
@@ -26,25 +28,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'description'  => trim($_POST['description']),
         'is_active'    => isset($_POST['is_active']) ? 1 : 0,
         'sort_order'   => (int)$_POST['sort_order'],
+        'photo'        => $hall['photo'] ?? null,
     ];
 
-    if ($id) {
-        $sql = "UPDATE halls SET name_si=?, name_en=?, capacity_min=?, capacity_max=?, price_ac=?, price_non_ac=?, has_ac=?, description=?, is_active=?, sort_order=? WHERE id=?";
-        $pdo->prepare($sql)->execute([...array_values($data), $id]);
-    } else {
-        $sql = "INSERT INTO halls (name_si,name_en,capacity_min,capacity_max,price_ac,price_non_ac,has_ac,description,is_active,sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)";
-        $pdo->prepare($sql)->execute(array_values($data));
+    try {
+        $newPhoto = handle_image_upload('photo', 'halls');
+        if ($newPhoto) {
+            if (!empty($data['photo'])) delete_upload('halls', $data['photo']);
+            $data['photo'] = $newPhoto;
+        }
+        if (!empty($_POST['remove_photo']) && empty($newPhoto)) {
+            delete_upload('halls', $data['photo']);
+            $data['photo'] = null;
+        }
+
+        if ($id) {
+            $sql = "UPDATE halls SET name_si=?, name_en=?, capacity_min=?, capacity_max=?, price_ac=?, price_non_ac=?, has_ac=?, description=?, is_active=?, sort_order=?, photo=? WHERE id=?";
+            $pdo->prepare($sql)->execute([...array_values($data), $id]);
+        } else {
+            $sql = "INSERT INTO halls (name_si,name_en,capacity_min,capacity_max,price_ac,price_non_ac,has_ac,description,is_active,sort_order,photo) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+            $pdo->prepare($sql)->execute(array_values($data));
+        }
+        flash_set('success', 'Hall saved successfully.');
+        redirect('halls.php');
+    } catch (RuntimeException $ex) {
+        $uploadError = $ex->getMessage();
+        $hall = array_merge($hall, $data);
     }
-    flash_set('success', 'Hall saved successfully.');
-    redirect('halls.php');
 }
 
 include __DIR__ . '/includes/admin_header.php';
 ?>
 
-<form method="POST" class="card" style="max-width:720px;">
+<?php if ($uploadError): ?><div class="alert alert-error"><?= e($uploadError) ?></div><?php endif; ?>
+
+<form method="POST" class="card" style="max-width:720px;" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <div class="form-grid">
+        <div class="field full">
+            <label>Hall photo</label>
+            <?php if (!empty($hall['photo'])): ?>
+                <img src="<?= e(upload_url('halls', $hall['photo'])) ?>" alt="" style="width:220px; border-radius:10px; margin-bottom:10px; display:block;">
+                <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:.85rem; margin-bottom:8px;">
+                    <input type="checkbox" name="remove_photo" style="width:auto;"> Remove current photo
+                </label>
+            <?php endif; ?>
+            <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+            <span class="hint">JPG, PNG, WEBP or GIF, up to 4MB. Uploading a new photo replaces the current one.</span>
+        </div>
+
         <div class="field"><label>Name (English) *</label><input type="text" name="name_en" required value="<?= e($hall['name_en']) ?>"></div>
         <div class="field"><label>Name (Sinhala) *</label><input type="text" name="name_si" required value="<?= e($hall['name_si']) ?>"></div>
 

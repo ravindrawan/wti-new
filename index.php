@@ -7,6 +7,7 @@ $page_title = 'Home';
 $halls = $pdo->query("SELECT * FROM halls WHERE is_active = 1 ORDER BY sort_order LIMIT 4")->fetchAll();
 $categoryCount = $pdo->query("SELECT COUNT(*) FROM price_categories WHERE is_active = 1")->fetchColumn();
 $hallCount = $pdo->query("SELECT COUNT(*) FROM halls WHERE is_active = 1")->fetchColumn();
+$announcements = $pdo->query("SELECT * FROM announcements WHERE is_active = 1 ORDER BY sort_order, id DESC LIMIT 3")->fetchAll();
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -53,7 +54,9 @@ include __DIR__ . '/includes/header.php';
         <div class="grid grid-4" style="margin-top:26px;">
             <?php foreach ($halls as $h): ?>
             <div class="card hall-card">
-                <div class="hall-photo"><?= e(mb_substr($h['name_en'], 0, 1)) ?></div>
+                <div class="hall-photo" <?= $h['photo'] ? 'style="background-image:url(\'' . e(upload_url('halls', $h['photo'])) . '\'); background-size:cover; background-position:center;"' : '' ?>>
+                    <?= $h['photo'] ? '' : e(mb_substr($h['name_en'], 0, 1)) ?>
+                </div>
                 <span class="tag"><?= $h['has_ac'] ? 'A/C available' : 'Non A/C' ?></span>
                 <h3 style="margin-bottom:2px;"><?= e($h['name_en']) ?></h3>
                 <div class="cap">Up to <?= (int)$h['capacity_max'] ?> persons</div>
@@ -65,6 +68,35 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
+
+<?php if ($announcements): ?>
+<section class="section">
+    <div class="container">
+        <div class="flex-between" style="flex-wrap:wrap; gap:12px;">
+            <div>
+                <div class="eyebrow">Latest</div>
+                <h2 class="mb-0">Notices &amp; Gallery</h2>
+            </div>
+            <a href="<?= SITE_URL ?>announcements.php" class="btn btn-ghost btn-sm">View all →</a>
+        </div>
+        <div class="grid grid-3" style="margin-top:24px;">
+            <?php foreach ($announcements as $a): ?>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <?php if ($a['image']): ?>
+                    <img src="<?= e(upload_url('announcements', $a['image'])) ?>" alt="" style="width:100%; height:170px; object-fit:cover;">
+                <?php endif; ?>
+                <div style="padding:16px 18px;">
+                    <h3 style="margin-bottom:2px; font-size:1.05rem;"><?= e($a['title_en'] ?: $a['title_si']) ?></h3>
+                    <?php if ($a['description_en'] || $a['description_si']): ?>
+                        <p style="font-size:.87rem; margin-bottom:0;"><?= e(mb_strimwidth($a['description_en'] ?: $a['description_si'], 0, 110, '…')) ?></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <section class="section section--sage">
     <div class="container">
@@ -122,4 +154,3 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
->>>>>>> c4c51eb70c6d5173b77b37aa880754854b5adf1e

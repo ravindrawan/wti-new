@@ -1,11 +1,29 @@
 -- ============================================================
 -- Wayamba Training Institute - Wariyapola (WTI)
 -- Database schema + seed data
--- Import this file first: mysql -u root -p wti_db < schema.sql
+--
+-- IMPORTANT — Sinhala text will show as "????" or mangled symbols
+-- if this file is imported with the wrong client charset. Always
+-- import it like this (note --default-character-set=utf8mb4):
+--
+--   mysql --default-character-set=utf8mb4 -u USER -p DBNAME < schema.sql
+--
+-- If your database already existed before running this file (this
+-- is common on OpenShift, where the MySQL template pre-creates an
+-- empty database for you), the CREATE DATABASE line below is
+-- skipped and the pre-existing database may still be using
+-- latin1/utf8 instead of utf8mb4. Run this first in that case:
+--
+--   ALTER DATABASE your_db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+--
+-- See database/upgrade_v2.sql if you are fixing an existing install.
 -- ============================================================
+
+SET NAMES utf8mb4;
 
 CREATE DATABASE IF NOT EXISTS wti_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE wti_db;
+ALTER DATABASE wti_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------
 -- Admins (CMS users)
@@ -17,7 +35,7 @@ CREATE TABLE admins (
     full_name VARCHAR(120) DEFAULT NULL,
     role ENUM('super_admin','editor') NOT NULL DEFAULT 'editor',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Default admin: username = admin / password = ChangeMe123!
 -- (hash generated with PHP password_hash('ChangeMe123!', PASSWORD_DEFAULT))
@@ -42,7 +60,7 @@ CREATE TABLE halls (
     sort_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO halls (name_si, name_en, capacity_min, capacity_max, price_ac, price_non_ac, has_ac, sort_order) VALUES
 ('ප්‍රධාන ශාලාව', 'Main Hall', NULL, 150, 10000.00, 8000.00, 1, 1),
@@ -78,7 +96,7 @@ CREATE TABLE hall_bookings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (hall_id) REFERENCES halls(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------
 -- Price categories (CMS-managed: hall extras, equipment,
@@ -92,7 +110,7 @@ CREATE TABLE price_categories (
     icon VARCHAR(60) DEFAULT NULL,
     sort_order INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO price_categories (name_si, name_en, slug, icon, sort_order) VALUES
 ('ශාලා අමතර ගාස්තු', 'Hall Extra Charges', 'hall-extras', 'building', 1),
@@ -118,7 +136,7 @@ CREATE TABLE price_items (
     sort_order INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
     FOREIGN KEY (category_id) REFERENCES price_categories(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Hall extra charges (from institute price list)
 INSERT INTO price_items (category_id, name_si, name_en, unit, price, sort_order) VALUES
@@ -189,7 +207,7 @@ CREATE TABLE pages (
     content_si TEXT,
     content_en TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO pages (slug, title_si, title_en, content_si, content_en) VALUES
 ('about', 'ආයතනය පිළිබඳව', 'About the Institute',
@@ -198,6 +216,29 @@ INSERT INTO pages (slug, title_si, title_en, content_si, content_en) VALUES
 ('contact', 'අප අමතන්න', 'Contact Us',
  'දුරකථන: 037 2267370 | ෆැක්ස්: 037 2057547 | විද්‍යුත් තැපෑල: wtiwariyapola@gmail.com',
  'Telephone: 037 2267370 | Fax: 037 2057547 | Email: wtiwariyapola@gmail.com');
+
+-- ---------------------------------------------------------
+-- Announcements / photo notices (shown on the homepage and the
+-- public "Notices & Gallery" page — fully managed from the CMS,
+-- including the image upload).
+-- ---------------------------------------------------------
+CREATE TABLE announcements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title_si VARCHAR(200) NOT NULL,
+    title_en VARCHAR(200) DEFAULT NULL,
+    description_si TEXT,
+    description_en TEXT,
+    image VARCHAR(255) DEFAULT NULL,
+    link_url VARCHAR(255) DEFAULT NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO announcements (title_si, title_en, description_si, description_en, sort_order) VALUES
+('ආයතනයට සාදරයෙන් පිළිගනිමු', 'Welcome to WTI Wariyapola',
+ 'වයඹ පුහුණු ආයතනය - වාරියපොල ශාලා, නේවාසික සහ ආහාර පහසුකම් සමඟ ඔබගේ පුහුණු වැඩසටහන් සඳහා සූදානම්.',
+ 'Add real photos of the institute here from the admin panel — Announcements → Add.', 1);
 
 -- ---------------------------------------------------------
 -- Simple contact / enquiry messages
@@ -210,4 +251,4 @@ CREATE TABLE enquiries (
     message TEXT NOT NULL,
     is_read TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

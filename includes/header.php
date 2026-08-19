@@ -29,6 +29,7 @@ $flash = flash_get();
             <a href="<?= SITE_URL ?>index.php" class="<?= $current === 'index.php' ? 'active' : '' ?>">Home</a>
             <a href="<?= SITE_URL ?>halls.php" class="<?= $current === 'halls.php' ? 'active' : '' ?>">Lecture Halls</a>
             <a href="<?= SITE_URL ?>facilities.php" class="<?= $current === 'facilities.php' ? 'active' : '' ?>">Facilities &amp; Rates</a>
+            <a href="<?= SITE_URL ?>announcements.php" class="<?= $current === 'announcements.php' ? 'active' : '' ?>">Notices &amp; Gallery</a>
             <a href="<?= SITE_URL ?>booking.php" class="<?= $current === 'booking.php' ? 'active' : '' ?>">Book a Hall</a>
             <a href="<?= SITE_URL ?>track_booking.php" class="<?= $current === 'track_booking.php' ? 'active' : '' ?>">Track Booking</a>
             <a href="<?= SITE_URL ?>contact.php" class="<?= $current === 'contact.php' ? 'active' : '' ?>">Contact</a>
