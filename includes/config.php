@@ -3,10 +3,11 @@
  * Database configuration
  * Update these 4 values to match your hosting environment.
  */
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'wti_db');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+
+define('DB_HOST', 'MYSQL_HOST');
+define('DB_NAME', 'MYSQL_DATABASE');
+define('DB_USER', 'MYSQL_USER');
+define('DB_PASS', 'MYSQL_PASSWORD');
 
 define('SITE_NAME', 'Wayamba Training Institute - Wariyapola');
 define('SITE_URL', '/'); // change to sub-folder path if not installed at web root, e.g. '/wti-website/'
