@@ -21,3 +21,6 @@ define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 define('UPLOAD_URL', SITE_URL . 'uploads/');
 
 date_default_timezone_set('Asia/Colombo');
+
+// Define maximum upload file size in bytes (e.g., 5MB)
+define('UPLOAD_MAX_BYTES', 5 * 1024 * 1024);
