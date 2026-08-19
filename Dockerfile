@@ -1,13 +1,10 @@
 FROM registry.access.redhat.com/ubi9/php-82:latest
 
-# Copy application source code to the container working directory
-COPY . /opt/app-root/src
+# Copy application files to the Apache document root
+COPY . /var/www/html/
 
-# Set permissions if necessary
-RUN fix-permissions /opt/app-root
-
-# Expose port 8080 (OpenShift standard non-root port)
+# Expose port 8080 (OpenShift standard)
 EXPOSE 8080
 
-CMD ["run-httpd"]
-
+# The base image automatically starts httpd, but if needed:
+CMD ["httpd", "-D", "FOREGROUND"]
